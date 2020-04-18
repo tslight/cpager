@@ -1,3 +1,3 @@
-from cpager import pager
+from .cpager import pager
 
 __all__ = ["pager"]

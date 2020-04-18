@@ -6,7 +6,10 @@ Example usages: cpager.py -l {1..100}
                 cpager.py -f ~/path/to/file
                 cpager.py -s "some super long string with\n newlines..."
 
-Use k/j/h/l to go up/down/left/right or q to quit.
+Use k/j/h/l to go up/down/left/right
+f/b to go to next/previous pages
+g/G to go to beginning/end
+q to quit
 """
 
 import cgitb
@@ -45,7 +48,7 @@ def get_args():
     return parser.parse_args()
 
 
-def pager(stdscr, lines):
+def event_loop(stdscr, lines):
     """
     Draw screen and wait for input.
     """
@@ -117,6 +120,10 @@ def parse_newlines(lines):
     return lines
 
 
+def pager(lines):
+    curses.wrapper(event_loop, lines)
+
+
 def main():
     args = get_args()
 
@@ -129,7 +136,7 @@ def main():
     elif args.string:
         lines = re.split(f"{os.linesep}|\\n", lines)
 
-    curses.wrapper(pager, lines)
+    pager(lines)
 
 
 if __name__ == "__main__":
