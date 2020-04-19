@@ -9,12 +9,24 @@
 Simple ncurses pad scrolling example.
 
 ``` text
-Example usages: cpager.py -l {1..100}
-                cpager.py -f ~/path/to/file
-                cpager.py -s "some super long string with\n newlines..."
+usage: cpager [-h] [-f FILE] [-l LIST [LIST ...]] [-s STRING]
+
+Curses Pager Experiments
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f, --file FILE       file to page
+  -l, --list [LIST ...] list to page
+  -s, --string STRING   long string to page
 ```
 
-Use k/j/h/l or arrow keys to go up/down/left/right
-f/b or PGUP/PGDN to go to next/previous pages
-g/G or HOME/END to go to beginning/end
-q to quit
+| **KEY**     | **ACTION**                |
+|:------------|:--------------------------|
+| `k`,`UP`    | Move up one line          |
+| `j`,`DOWN`  | Move down one line        |
+| `h`,`LEFT`  | Move left one char        |
+| `l`,`RIGHT` | Move right one char       |
+| `g`,`HOME`  | Jump to first line        |
+| `G`,`END`   | Jump to last line         |
+| `f`,`PGDN`  | Jump down a page of lines |
+| `b`,`PGUP`  | Jump up a page of lines   |
