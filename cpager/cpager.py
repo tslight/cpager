@@ -63,7 +63,6 @@ def event_loop(stdscr, lines):
     while True:
         # draw lines
         for idx, line in enumerate(lines):
-            # pad.addstr(idx, 0, line)
             addstr(pad, idx, 0, line)
 
         # refresh components
