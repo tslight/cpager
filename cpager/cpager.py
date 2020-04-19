@@ -31,7 +31,7 @@ def chkfile(path):
     """
     Check if file exists, otherwise raise argparse exception.
     """
-    if os.path.isfile(path):
+    if os.path.isfile(os.path.expanduser(path)):
         return os.path.abspath(os.path.expanduser(path))
 
     raise ArgumentTypeError(f"{path} does not exist.")
