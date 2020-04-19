@@ -19,7 +19,7 @@ import re
 import os
 
 from argparse import ArgumentParser, ArgumentTypeError
-from cansi import addstr
+from cansi import Cansi
 
 os.environ.setdefault("ESCDELAY", "12")  # otherwise it takes an age!
 
@@ -57,13 +57,13 @@ def event_loop(stdscr, lines):
     pad = curses.newpad(len(lines) + 1, longest + 1)
     pad.keypad(True)  # use function keys
     curses.curs_set(0)  # hide the cursor
-    curses.use_default_colors()  # https://stackoverflow.com/a/44015131
+    cansi = Cansi(pad)
     pminrow = 0  # pad row to start displaying contents at
     pmincol = 0  # pad column to start displaying contents at
     while True:
         # draw lines
         for idx, line in enumerate(lines):
-            addstr(pad, idx, 0, line)
+            cansi.addstr(idx, 0, line)
 
         # refresh components
         stdscr.noutrefresh()
@@ -108,9 +108,9 @@ def event_loop(stdscr, lines):
 
 def parse_newlines(lines):
     for l in lines:
-        if "\\n" in l:
+        if any((os.linesep, "\\n", "\\r")) in l:
             idx = lines.index(l)
-            new_elements = l.split("\\n")
+            new_elements = re.split(f"{os.linesep}|\\r", l)
             lines.remove(l)
             for e in new_elements:
                 lines.insert(idx, e)
@@ -133,7 +133,7 @@ def main():
     elif args.list:
         lines = parse_newlines(args.list)
     elif args.string:
-        lines = re.split(f"{os.linesep}|\\n", lines)
+        lines = re.split(f"{os.linesep}|\\n", args.string)
 
     pager(lines)
 
