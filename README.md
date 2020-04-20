@@ -9,7 +9,7 @@
 Simple ncurses pad scrolling example.
 
 ``` text
-usage: cpager [-h] [-f FILE] [-l LIST [LIST ...]] [-s STRING]
+usage: cpager [-h] [-f FILE] [-l [LIST ...]] [-s STRING]
 
 Curses Pager Experiments
 
