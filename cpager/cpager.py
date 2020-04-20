@@ -48,7 +48,7 @@ def get_args():
     return parser.parse_args()
 
 
-def event_loop(stdscr, lines):
+def event_loop(stdscr, lines):  # pylint: disable=too-many-branches
     """
     Draw screen and wait for input.
     """
@@ -108,9 +108,9 @@ def event_loop(stdscr, lines):
 
 def parse_newlines(lines):
     for l in lines:
-        if any((os.linesep, "\\n", "\\r")) in l:
+        if any(c in l for c in [os.linesep, "\n", "\\n"]):
             idx = lines.index(l)
-            new_elements = re.split(f"{os.linesep}|\\r", l)
+            new_elements = re.split(f"{os.linesep}|\\\\n", l)
             lines.remove(l)
             for e in new_elements:
                 lines.insert(idx, e)
@@ -133,7 +133,7 @@ def main():
     elif args.list:
         lines = parse_newlines(args.list)
     elif args.string:
-        lines = re.split(f"{os.linesep}|\\n", args.string)
+        lines = re.split(f"{os.linesep}|\\\\n", lines)
 
     pager(lines)
 
