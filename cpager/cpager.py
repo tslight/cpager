@@ -20,6 +20,7 @@ import os
 
 from argparse import ArgumentParser, ArgumentTypeError
 from cansi import Cansi
+from .keys import Keys
 
 os.environ.setdefault("ESCDELAY", "12")  # otherwise it takes an age!
 
@@ -52,58 +53,27 @@ def event_loop(stdscr, lines):  # pylint: disable=too-many-branches
     """
     Draw screen and wait for input.
     """
-    maxy, maxx = stdscr.getmaxyx()
-    longest = len(max(lines, key=len))
-    pad = curses.newpad(len(lines) + 1, longest + 1)
-    pad.keypad(True)  # use function keys
-    curses.curs_set(0)  # hide the cursor
-    cansi = Cansi(pad)
-    pminrow = 0  # pad row to start displaying contents at
-    pmincol = 0  # pad column to start displaying contents at
+    page = Keys(stdscr, lines)
+    cansi = Cansi(page.pad)
+    footer = "Press [?] to view keybindings"
     while True:
+        page.draw_footer(footer)
         # draw lines
         for idx, line in enumerate(lines):
             cansi.addstr(idx, 0, line)
+            # if idx in page.matches:
+            #     page.pad.chgat(idx, 0, curses.color_pair(100) | curses.A_BOLD)
 
-        # refresh components
-        stdscr.noutrefresh()
-        pad.noutrefresh(pminrow, pmincol, 0, 0, maxy - 1, maxx - 1)
-        curses.doupdate()
+        page.refresh()
 
         # react to input
         key = stdscr.getch()
-
-        if key == ord("q") or key == curses.ascii.ESC:
+        out = page.action(key)
+        if out == "quit":
             break
 
-        if key == ord("k") or key == curses.KEY_UP:
-            if pminrow > 0:
-                pminrow -= 1
-        elif key == ord("j") or key == curses.KEY_DOWN:
-            if pminrow < len(lines) - maxy:
-                pminrow += 1
-        elif key == ord("h") or key == curses.KEY_LEFT:
-            if pmincol > 0:
-                pmincol -= 1
-        elif key == ord("l") or key == curses.KEY_RIGHT:
-            if pmincol < longest - maxx:
-                pmincol += 1
-        elif key == ord("f") or key == curses.KEY_NPAGE:
-            if pminrow < len(lines) - maxy:
-                pminrow += maxy
-            if pminrow > len(lines) - maxy:
-                pminrow = len(lines) - maxy
-        elif key == ord("b") or key == curses.KEY_PPAGE:
-            if pminrow > 0:
-                pminrow -= maxy
-        elif key == ord("g") or key == curses.KEY_HOME:
-            pminrow = 0
-        elif key == ord("G") or key == curses.KEY_END:
-            pminrow = len(lines) - maxy
-        elif key == curses.KEY_RESIZE:
-            stdscr.erase()
-            pad.erase()
-            maxy, maxx = stdscr.getmaxyx()
+        if out:
+            footer = out
 
 
 def parse_newlines(lines):
