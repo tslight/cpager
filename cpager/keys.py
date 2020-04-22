@@ -69,7 +69,7 @@ class Keys(Action):
 
     def action(self, key):
         """
-        Run a key from the rowkeys dictionary as a method.
+        Run a key from the keys dictionary as a method.
         """
         try:
             action = [k for (k, v) in self.keys.items() if key in v][0]
