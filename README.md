@@ -9,15 +9,15 @@ More or less a simple Curses Python paging library...
 ## USAGE
 
 ``` text
-usage: cpager [-h] [-f FILE] [-l [LIST ...]] [-s STRING]
+usage: cpager [-h] input
 
-Curses Pager Experiments
+More or less a pager
+
+positional arguments:
+  input       file or string
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -f, --file FILE       file to page
-  -l, --list [LIST ...] list to page
-  -s, --string STRING   long string to page
+  -h, --help  show this help message and exit
 ```
 
 ## KEYBINDINGS
