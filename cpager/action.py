@@ -1,8 +1,7 @@
 import curses
 import os
-import re
 from curses.textpad import Textbox
-from fnmatch import fnmatch
+from .utils import mkculor
 
 
 class Action:
@@ -19,6 +18,7 @@ class Action:
         self.pminrow = 0  # pad row to start displaying contents at
         self.pmincol = 0  # pad column to start displaying contents at
         self.matches = []
+        self.color = mkculor()
         curses.curs_set(0)  # hide the cursor
 
     def up(self):
@@ -59,6 +59,7 @@ class Action:
                 if self.pminrow < i:
                     self.pminrow = i
                     return
+
             self.top()
             self.next()
 
@@ -68,17 +69,21 @@ class Action:
                 if self.pminrow > i:
                     self.pminrow = i
                     return
+
             self.bottom()
             self.prev()
 
     def _match(self, msg):
         search = self._textbox(msg).strip()
+
         if not search:
             return
+
         for index, line in enumerate(self.lines):
             if search in line:
                 if index not in self.matches:
                     self.matches.append(index)
+
         if self.matches:
             self.next()
 
@@ -106,9 +111,8 @@ class Action:
 
     def draw_footer(self, msg):
         try:
-            curses.init_pair(100, curses.COLOR_WHITE, curses.COLOR_BLUE)
-            self.foot.addstr(0, 0, msg, curses.color_pair(100) | curses.A_BOLD)
-            self.foot.bkgdset(curses.color_pair(100))
+            self.foot.addstr(0, 0, msg, self.color["blue_white_bold"])
+            self.foot.bkgdset(self.color["blue_white_bold"])
             self.foot.clrtoeol()  # more frugal than erase. no flicker.
         except curses.error:
             pass

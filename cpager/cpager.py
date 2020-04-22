@@ -58,7 +58,6 @@ def event_loop(stdscr, lines):  # pylint: disable=too-many-branches
     footer = "Press [?] to view keybindings"
     while True:
         page.draw_footer(footer)
-        # draw lines
         for idx, line in enumerate(lines):
             cansi.addstr(idx, 0, line)
             # if idx in page.matches:
@@ -66,7 +65,6 @@ def event_loop(stdscr, lines):  # pylint: disable=too-many-branches
 
         page.refresh()
 
-        # react to input
         key = stdscr.getch()
         out = page.action(key)
         if out == "quit":
