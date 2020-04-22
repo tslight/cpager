@@ -1,5 +1,4 @@
 import curses
-import curses.ascii
 import re
 import os
 
