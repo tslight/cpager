@@ -1,18 +1,3 @@
-#!/usr/bin/env python
-"""
-Simple ncurses pad scrolling example.
-
-Example usages: cpager.py -l {1..100}
-                cpager.py -f ~/path/to/file
-                cpager.py -s "some super long string with\n newlines..."
-
-Use k/j/h/l to go up/down/left/right
-f/b to go to next/previous pages
-g/G to go to beginning/end
-q to quit
-"""
-
-import cgitb
 import curses
 import curses.ascii
 import re
@@ -24,28 +9,24 @@ from .keys import Keys
 
 os.environ.setdefault("ESCDELAY", "12")  # otherwise it takes an age!
 
-# better debugging
-cgitb.enable(format="text")
 
-
-def chkfile(path):
-    """
-    Check if file exists, otherwise raise argparse exception.
-    """
-    if os.path.isfile(os.path.expanduser(path)):
-        return os.path.abspath(os.path.expanduser(path))
-
-    raise ArgumentTypeError(f"{path} does not exist.")
+def chkinput(input):
+    if os.path.isfile(os.path.expanduser(input)):
+        path = os.path.abspath(os.path.expanduser(input))
+        with open(path, "r") as file:
+            return file.readlines()
+    elif isinstance(input, str):
+        return re.split(f"{os.linesep}|\\\\n", input)
+    else:
+        raise ArgumentTypeError(f"{input} is invalid.")
 
 
 def get_args():
     """
     Return CLI arguments.
     """
-    parser = ArgumentParser(description=f"Curses Pager Experiments")
-    parser.add_argument("-f", "--file", type=chkfile, help="file to page")
-    parser.add_argument("-l", "--list", nargs="+", help="list to page")
-    parser.add_argument("-s", "--string", help=f"long string to page")
+    parser = ArgumentParser(description=f"More or less a pager")
+    parser.add_argument("input", type=chkinput, help="file or string")
     return parser.parse_args()
 
 
@@ -60,8 +41,6 @@ def event_loop(stdscr, lines):  # pylint: disable=too-many-branches
         page.draw_footer(footer)
         for idx, line in enumerate(lines):
             cansi.addstr(idx, 0, line)
-            # if idx in page.matches:
-            #     page.pad.chgat(idx, 0, curses.color_pair(100) | curses.A_BOLD)
 
         page.refresh()
 
@@ -74,36 +53,13 @@ def event_loop(stdscr, lines):  # pylint: disable=too-many-branches
             footer = out
 
 
-def parse_newlines(lines):
-    for l in lines:
-        if any(c in l for c in [os.linesep, "\n", "\\n"]):
-            idx = lines.index(l)
-            new_elements = re.split(f"{os.linesep}|\\\\n", l)
-            lines.remove(l)
-            for e in new_elements:
-                lines.insert(idx, e)
-                idx += 1
-
-    return lines
-
-
 def pager(lines):
     curses.wrapper(event_loop, lines)
 
 
 def main():
     args = get_args()
-
-    if args.file:
-        path = os.path.abspath(os.path.expanduser(args.file))
-        with open(path, "r") as file:
-            lines = file.readlines()
-    elif args.list:
-        lines = parse_newlines(args.list)
-    elif args.string:
-        lines = re.split(f"{os.linesep}|\\\\n", lines)
-
-    pager(lines)
+    pager(args.input)
 
 
 if __name__ == "__main__":
